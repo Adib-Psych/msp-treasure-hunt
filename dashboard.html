@@ -50,6 +50,8 @@ td.c{font-weight:700;border-radius:6px}
 .full{background:#e1f3ec;color:var(--pine)} .part{background:#fff3d9;color:#9a6700} .zero{background:#fdeceb;color:#b5473c}
 tr.avg td{font-weight:700;background:#f1f6fa}
 .foot{grid-column:1/-1;color:var(--muted);font-size:13px}
+.ab{font:inherit;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--navy);border-radius:10px;padding:8px 14px;cursor:pointer}
+.ab:hover{border-color:var(--blue)}
 </style>
 </head>
 <body>
@@ -57,9 +59,17 @@ tr.avg td{font-weight:700;background:#f1f6fa}
   <div><div class="kick" id="kick">Day 1 · 4 November 2026</div><h1>Treasure Hunt: live scores</h1></div>
   <div class="ctl">
     <span class="live" id="live"><i></i><span id="st">Connecting…</span></span>
-    <button id="b1" class="on">Day 1</button><button id="b2">Day 2</button>
+    <button id="b1" class="on">Day 1</button><button id="b2">Day 2</button><button id="adm" title="Facilitator options">⚙︎</button>
   </div>
 </header>
+<section id="admin" hidden style="background:#fff;border-bottom:1px solid var(--line);padding:14px max(16px,3vw);display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center">
+  <b style="font-family:var(--display);letter-spacing:.06em">FACILITATOR OPTIONS</b>
+  <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="hidetest" checked> Hide groups named “test”</label>
+  <button class="ab" id="reset">Start fresh from now</button>
+  <button class="ab" id="undo">Show all submissions again</button>
+  <span id="admst" style="color:var(--muted);font-size:14px"></span>
+  <span style="color:var(--muted);font-size:13px;flex-basis:100%">These options change this screen only. To delete rows for good, edit the Google Sheet “MSP Treasure Hunt Results 4-5 Nov 2026”.</span>
+</section>
 <main>
   <section class="card"><h2>Ranking</h2><div class="rank" id="rank"><div class="empty">Scores appear here as groups submit.</div></div></section>
   <section class="card"><h2>Points per question</h2><div class="tw"><table id="tbl"></table></div></section>
@@ -69,12 +79,23 @@ tr.avg td{font-weight:700;background:#f1f6fa}
 <script>
 const LAB={1:['Q1','Q2','Q3','Q4','Q5','★','Q6','Q7','Q8','Q9'],2:['Q1','Q2','Q3','Q4','Q5','★','Q6','Q7','Q8','Q9']};
 const PTS={1:[2,1,1,1,2,1,1,2,2,1],2:[2,1,1,2,2,1,4,1,2,3]};
-let day=1,timer=null;
+let day=1,timer=null,lastRows=[];
+let A={hide:true,off:{1:0,2:0}};try{const a=JSON.parse(localStorage.getItem('th-admin'));if(a)A=a;}catch(e){}
+const saveA=()=>{try{localStorage.setItem('th-admin',JSON.stringify(A))}catch(e){}};
+function admInfo(){const n=A.off[day]||0;document.getElementById('admst').textContent=n?('Hiding the first '+n+' submission'+(n>1?'s':'')+' of Day '+day+'.'):'Showing all submissions of Day '+day+'.';}
+document.getElementById('adm').onclick=()=>{const p=document.getElementById('admin');p.hidden=!p.hidden;admInfo();};
+document.getElementById('hidetest').checked=A.hide!==false;
+document.getElementById('hidetest').onchange=e=>{A.hide=e.target.checked;saveA();render(lastRows)};
+document.getElementById('reset').onclick=()=>{A.off[day]=lastRows.length;saveA();admInfo();render(lastRows)};
+document.getElementById('undo').onclick=()=>{A.off[day]=0;saveA();admInfo();render(lastRows)};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function setDay(d){day=d;document.getElementById('b1').className=d===1?'on':'';document.getElementById('b2').className=d===2?'on':'';
+function setDay(d){day=d;try{admInfo()}catch(e){};document.getElementById('b1').className=d===1?'on':'';document.getElementById('b2').className=d===2?'on':'';
   document.getElementById('kick').textContent=d===1?'Day 1 · 4 November 2026':'Day 2 · 5 November 2026';load();}
 document.getElementById('b1').onclick=()=>setDay(1);document.getElementById('b2').onclick=()=>setDay(2);
-function render(rows){
+function render(all){
+  lastRows=all;
+  let rows=all.slice(A.off[day]||0);
+  if(A.hide!==false)rows=rows.filter(r=>!/^\s*test/i.test(String(r.group)));
   const latest={};rows.forEach(r=>{latest[String(r.group).trim().toLowerCase()]=r});
   const list=Object.values(latest).sort((a,b)=>(b.score+b.bonus)-(a.score+a.bonus)||a.minutes-b.minutes);
   const rk=document.getElementById('rank');
