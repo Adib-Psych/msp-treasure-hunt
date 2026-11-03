@@ -81,7 +81,7 @@ function render(rows){
   if(!list.length){rk.innerHTML='<div class="empty">Scores appear here as groups submit.</div>';document.getElementById('tbl').innerHTML='';return}
   const top=list[0].score+list[0].bonus;
   rk.innerHTML=list.map((r,i)=>`<div class="r ${r.score+r.bonus===top?'first':''}"><div class="pos">${r.score+r.bonus===top?'🏆':i+1}</div>
-    <div><div class="g">${esc(r.group)}</div><div class="meta">submitted ${esc(r.at)} · ${r.minutes} min${r.bonus?' · +'+r.bonus+' bonus':''}</div></div>
+    <div><div class="g">${esc(r.group)}</div><div class="meta">${/^\d\d:\d\d$/.test(String(r.at))?'submitted '+esc(r.at)+' · ':''}${r.minutes} min${r.bonus?' · +'+r.bonus+' bonus':''}</div></div>
     <div class="sc">${r.score}<small> / ${r.max}</small></div><div class="bar"><span style="width:${Math.round(100*r.score/(r.max||1))}%"></span></div></div>`).join('');
   const L=LAB[day],P=PTS[day];
   let h='<tr><th style="text-align:left">Group</th>'+L.map((l,i)=>`<th>${l}<br><small>(${P[i]})</small></th>`).join('')+'</tr>';
