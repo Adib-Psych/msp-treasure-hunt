@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MSP Treasure Hunt Nepal</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one card per screen, phone first; colour of each question = its MSP section */
+:root{
+  --ink:#0f2a33; --muted:#5b6f77; --bg:#eef3f5; --card:#ffffff; --line:#d9e3e7;
+  --deep:#00313C; --blue:#1671B9; --navy:#1A497D; --sky:#2B9FD2; --teal:#32BFC2;
+  --green:#6FB477; --purple:#913694; --coral:#DD5D51; --gold:#E2A93B; --pine:#068674;
+  --display:"Oswald","Arial Narrow",Arial,sans-serif; --body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);font-size:17px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+.top{background:var(--deep);color:#fff;padding:14px max(16px,env(safe-area-inset-left)) 12px max(16px,env(safe-area-inset-right));padding-top:calc(14px + env(safe-area-inset-top));position:sticky;top:0;z-index:5}
+.top .row{display:flex;align-items:center;gap:10px;max-width:720px;margin:0 auto}
+.brand{font-family:var(--display);letter-spacing:.06em;text-transform:uppercase;font-size:15px;color:#9fdcf3;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:#fff;font-weight:600}
+.timer{font-family:var(--display);font-size:20px;background:rgba(255,255,255,.1);border-radius:8px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.timer.low{background:var(--coral)}
+.dots{display:flex;gap:5px;max-width:720px;margin:10px auto 0}
+.dots i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.18)}
+.dots i.done{background:var(--c)}
+.dots i.now{background:#fff}
+main{max-width:720px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-left)) calc(28px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-right))}
+.card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,49,60,.06)}
+.hero{position:relative;overflow:hidden;background:var(--deep);color:#fff;border-radius:18px;padding:26px 22px 22px}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;border:28px solid rgba(43,159,210,.16)}
+.kick{font-family:var(--display);letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:#9fdcf3}
+h1{font-family:var(--display);font-weight:600;font-size:34px;line-height:1.05;margin:8px 0 6px;text-wrap:balance}
+.hero p{color:#d5e8ee;max-width:46ch}
+.sq{display:flex;gap:6px;margin-top:16px}
+.sq span{width:30px;height:7px;border-radius:4px}
+.how{display:grid;gap:10px;margin:16px 0}
+.how div{display:flex;gap:12px;align-items:flex-start}
+.how b{font-family:var(--display);font-size:18px;color:#fff;background:var(--c);min-width:30px;height:30px;border-radius:9px;display:grid;place-items:center}
+label.fl{display:block;font-weight:700;margin:4px 0 6px}
+input[type=text]{width:100%;font:inherit;font-size:19px;padding:13px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+input[type=text]:focus{outline:none;border-color:var(--blue)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:700;font-size:18px;border:none;border-radius:12px;padding:14px 20px;cursor:pointer;background:var(--blue);color:#fff;min-height:52px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.ghost{background:transparent;color:var(--navy);border:2px solid var(--line)}
+.btn.wide{width:100%}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.nav{display:flex;gap:10px;margin-top:16px}
+.nav .btn{flex:1}
+.chip{display:inline-flex;gap:8px;align-items:center;font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--c);border-radius:6px;padding:3px 9px}
+.pts{font-family:var(--display);font-size:13px;letter-spacing:.06em;color:var(--c);border:2px solid var(--c);border-radius:6px;padding:1px 8px;margin-left:auto}
+.qhead{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.qnum{font-family:var(--display);font-size:46px;line-height:.9;color:var(--c);margin-bottom:6px}
+.qtext{font-size:19px;font-weight:600;line-height:1.35;margin-bottom:6px;text-wrap:pretty}
+.hint{color:var(--muted);font-size:15px;margin-bottom:14px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;font:inherit;background:#f7fafb;border:2px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;color:var(--ink)}
+.opt .k{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:16px;background:#fff;border:2px solid var(--line);color:var(--muted)}
+.opt.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 10%,#fff)}
+.opt.sel .k{background:var(--c);border-color:var(--c);color:#fff}
+.multi .opt .k{border-radius:8px}
+.bar{height:6px;border-radius:3px;background:var(--c);margin:-20px -20px 16px;border-radius:16px 16px 0 0}
+.rev{display:grid;gap:8px;margin:12px 0}
+.rev button{display:flex;gap:10px;align-items:center;text-align:left;font:inherit;background:#f7fafb;border:2px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.rev .n{font-family:var(--display);font-size:20px;color:var(--c);width:28px}
+.rev .s{margin-left:auto;font-size:14px;font-weight:700}
+.rev .s.ok{color:var(--pine)} .rev .s.no{color:var(--coral)}
+.score{text-align:center;padding:28px 18px}
+.score .grp{font-family:var(--display);font-size:24px;letter-spacing:.04em;margin-top:4px}
+.big{font-family:var(--display);font-weight:600;font-size:96px;line-height:1;margin:14px 0 2px;color:#fff}
+.big small{font-size:36px;color:#9fdcf3}
+.bonus{display:inline-block;margin-top:8px;background:var(--gold);color:var(--deep);font-weight:700;border-radius:20px;padding:4px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:16px}
+.grid div{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 4px;text-align:center;font-family:var(--display)}
+.grid div b{display:block;font-size:22px}
+.grid .ok b{color:#9be7c4} .grid .part b{color:var(--gold)} .grid .no b{color:#ff9d93}
+.note{color:var(--muted);font-size:14px;margin-top:14px;text-align:center}
+.warn{background:#fff5df;border:1px solid #f1d38c;border-radius:12px;padding:10px 12px;font-size:15px;margin-top:12px}
+.src{color:var(--muted);font-size:13px;margin-top:16px}
+a{color:var(--blue)}
+@media (prefers-reduced-motion:no-preference){.card,.hero{animation:in .25s ease-out}@keyframes in{from{transform:translateY(6px);opacity:.6}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<div class="top"><div class="row"><div class="brand"><b>MSP Treasure Hunt</b> · Nepal edition</div><div class="timer" id="timer" hidden></div></div><div class="dots" id="dots" hidden></div></div>
+<main id="app"></main>
+<script>
+const MIN = 35;
+const SEC = {
+  1:{c:'#1671B9',n:'Section 1 · Coordination and assessment'},
+  2:{c:'#913694',n:'Section 2 · Essential components'},
+  3:{c:'#068674',n:'Section 3 · Programme activities'},
+  4:{c:'#DD5D51',n:'Section 4 · Specific settings'},
+  0:{c:'#E2A93B',n:'Introduction and key considerations'}
+};
+/* type: one = single choice; many = choose all that apply (one point per correct choice, minus one per wrong choice, never below 0) */
+const Q = [
+ {sec:3,pts:2,type:'one',q:'How many MHPSS activities is the Health sector well placed to deliver?',
+  hint:'Count the coloured Health icons in the summary of MSP activities, and do not forget what every organization implementing MHPSS does.',
+  o:['11','14','18','22'],w:{2:2,1:1}},
+ {sec:2,pts:1,type:'one',q:'Which of these is a core action of Activity 2.3, “Care for staff and volunteers providing MHPSS”?',
+  hint:'Open Activity 2.3 and read its checklist of core actions.',
+  o:['Map who is doing what, where and when in MHPSS','Define working hours, monitor overtime, and provide for rest and recuperation','Select indicators and means of verification for each activity','Offer a single debriefing session to staff after a distressing event'],w:{1:1}},
+ {sec:3,pts:1,type:'one',q:'Which key consideration belongs to Activity 3.5, “Provide early childhood development activities to support young children and their caregivers”?',
+  hint:'Key considerations sit at the end of each activity.',
+  o:['Implementing MHPSS activities remotely','Integrating early childhood development activities into nutrition programmes','Do not offer psychological debriefing','Integrating MHPSS into child protection programming'],w:{1:1}},
+ {sec:0,pts:1,type:'one',q:'Where in the MSP can you find a summary of how to integrate MHPSS in Child Protection?',
+  hint:'Think about who should implement MSP activities, sector by sector.',
+  o:['In Activity 1.1, coordination','A key consideration in the introduction, “Who should implement MHPSS MSP activities?”','In Activity 3.5, early childhood development','In the MSP Costing Tool'],w:{1:1}},
+ {sec:0,pts:2,type:'one',q:'You are writing a funding proposal and want effective ways to reach at-risk groups and make MHPSS services accessible, inclusive and appropriate. Where is the overview?',
+  hint:'Look in the introduction of the MSP.',
+  o:['Activity 2.1, design, plan and coordinate MHPSS programmes','Activity 3.4, group-based community MHPSS activities','The introduction: “How can groups and persons at increased risk be prioritized and reached with MHPSS MSP activities and services?”','Activity 1.2, assess MHPSS needs and resources'],w:{2:2}},
+ {sec:0,pts:1,bonus:true,type:'one',q:'Bonus · On the MSP web platform, what is offered for at-risk groups?',
+  hint:'Online only: mhpssmsp.org.',
+  o:['A list of resources on MHPSS for at-risk groups','The MSP Costing Tool','The MSP Gap Analysis Tool','A certificate course'],w:{0:1}},
+ {sec:3,pts:1,type:'one',q:'After an earthquake, an NGO offers single sessions of psychological debriefing to people who saw a family member die. Which part of the MSP helps you advocate for a change?',
+  hint:'Evidence shows one-off debriefing is not effective and may harm some people.',
+  o:['Key consideration “Implementing MHPSS activities remotely”','Key consideration “MHPSS as part of the public health emergency response”','Key consideration “Do not offer psychological debriefing”','Key consideration “Integrating MHPSS into shelter and settlement programming”'],w:{2:1}},
+ {sec:4,pts:2,type:'many',q:'A new infectious disease outbreak limits face-to-face contact. Your coordination group asks how to adapt activities. Which TWO parts of the MSP guide this?',
+  hint:'Choose two. One point for each correct choice; a wrong choice takes a point away.',
+  o:['Key consideration “Implementing MHPSS activities remotely”','Key consideration “Do not offer psychological debriefing”','Key consideration “MHPSS as part of the public health emergency response”','Key consideration “Integrating MHPSS into WASH programming”'],w:{0:1,2:1}},
+ {sec:0,pts:2,type:'many',q:'Floods have damaged homes and water points in your district. Where does the MSP summarise how SHELTER actors and WASH actors can integrate MHPSS? Choose two.',
+  hint:'One point for each correct choice; a wrong choice takes a point away.',
+  o:['Integrating MHPSS into shelter and settlement programming','Integrating MHPSS into child protection programming','Integrating MHPSS into water, sanitation and hygiene programming','Integrating early childhood development into nutrition programmes'],w:{0:1,2:1}},
+ {sec:0,pts:1,type:'one',q:'In the MSP, what is the difference between an “orientation” and a “training”?',
+  hint:'Look for a footnote in the introduction.',
+  o:['An orientation is for community members; a training is for health staff','An orientation is a brief, one-off session; a training is more comprehensive capacity building with ongoing support and supervision','An orientation takes at least three days; a training takes one day','There is no difference; the MSP uses both words for the same thing'],w:{1:1}}
+];
+const MAX = Q.filter(x=>!x.bonus).reduce((a,x)=>a+x.pts,0);
+const KEY='msp-th-d1';
+let S={group:'',i:0,a:{},start:null,done:false};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S=s;}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const app=document.getElementById('app'),dots=document.getElementById('dots'),timer=document.getElementById('timer');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function mark(q,ans){
+  ans=ans||[]; if(q.type==='one'){return ans.length?(q.w[ans[0]]||0):0}
+  let s=0; ans.forEach(k=>{s+= q.w[k]?q.w[k]:-1}); return Math.max(0,Math.min(q.pts,s));
+}
+function totals(){let main=0,bonus=0;Q.forEach((q,i)=>{const m=mark(q,S.a[i]);if(q.bonus)bonus+=m;else main+=m});return{main,bonus}}
+function renderDots(){
+  dots.hidden=false;
+  dots.innerHTML=Q.map((q,i)=>`<i style="--c:${SEC[q.sec].c}" class="${i===S.i&&!S.review?'now':(S.a[i]&&S.a[i].length?'done':'')}"></i>`).join('');
+}
+function tick(){
+  if(!S.start||S.done){timer.hidden=true;return}
+  const left=Math.max(0,MIN*60-Math.floor((Date.now()-S.start)/1000));
+  timer.hidden=false;timer.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');
+  timer.classList.toggle('low',left<=300);
+}
+setInterval(tick,1000);
+function home(){
+  dots.hidden=true;
+  const sq=['#1671B9','#913694','#068674','#DD5D51','#E2A93B'].map(c=>`<span style="background:${c}"></span>`).join('');
+  app.innerHTML=`<section class="hero"><div class="kick">Day 1 · 4 November 2026</div><h1>Treasure Hunt: finding our way in the MSP</h1><p>Search the IASC MHPSS Minimum Service Package together. ${Q.length-1} questions, ${MAX} points, plus one bonus.</p><div class="sq">${sq}</div></section>
+  <div class="card" style="margin-top:14px"><div class="how">
+   <div style="--c:#1671B9"><b>1</b><span>One phone per group submits. Others search the MSP at <a href="https://mhpssmsp.org" target="_blank" rel="noopener">mhpssmsp.org</a> or in the printed copy.</span></div>
+   <div style="--c:#068674"><b>2</b><span>You have ${MIN} minutes. It is fine if you do not finish every question.</span></div>
+   <div style="--c:#DD5D51"><b>3</b><span>Your score appears when you submit. Show it to your facilitator.</span></div></div>
+   <label class="fl" for="g">Group name</label><input type="text" id="g" maxlength="40" placeholder="e.g. Table 3 · Koshi" value="${esc(S.group)}">
+   <div class="nav"><button class="btn wide" id="go">Start the hunt</button></div></div>`;
+  const g=document.getElementById('g'),go=document.getElementById('go');
+  const upd=()=>{go.disabled=!g.value.trim()};upd();g.oninput=upd;
+  go.onclick=()=>{S.group=g.value.trim().slice(0,40);if(!S.start)S.start=Date.now();S.i=0;save();show()};
+}
+function show(){
+  if(S.done)return result();
+  if(S.review)return review();
+  renderDots();tick();
+  const q=Q[S.i],c=SEC[q.sec].c,ans=S.a[S.i]||[],letters='ABCD';
+  app.innerHTML=`<div class="card ${q.type==='many'?'multi':''}" style="--c:${c}"><div class="bar"></div>
+   <div class="qhead"><span class="chip">${SEC[q.sec].n}</span><span class="pts">${q.bonus?'+1 bonus':q.pts+(q.pts>1?' points':' point')}</span></div>
+   <div class="qnum">${q.bonus?'★':(S.i<5?S.i+1:S.i)}</div>
+   <div class="qtext">${esc(q.q)}</div><div class="hint">${esc(q.hint)}</div>
+   <div class="opts">${q.o.map((t,k)=>`<button class="opt ${ans.includes(k)?'sel':''}" data-k="${k}" aria-pressed="${ans.includes(k)}"><span class="k">${letters[k]}</span><span>${esc(t)}</span></button>`).join('')}</div>
+   <div class="nav"><button class="btn ghost" id="back">${S.i===0?'Group name':'Back'}</button><button class="btn" id="next">${S.i===Q.length-1?'Review answers':'Next'}</button></div></div>`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.k;let a=(S.a[S.i]||[]).slice();
+    if(q.type==='one')a=[k];else a=a.includes(k)?a.filter(x=>x!==k):a.concat(k);
+    S.a[S.i]=a;save();show();
+  });
+  document.getElementById('back').onclick=()=>{if(S.i===0)return home();S.i--;save();show()};
+  document.getElementById('next').onclick=()=>{if(S.i===Q.length-1){S.review=true}else S.i++;save();show();window.scrollTo(0,0)};
+}
+function review(){
+  renderDots();tick();
+  const open=Q.filter((q,i)=>!(S.a[i]&&S.a[i].length)).length;
+  app.innerHTML=`<div class="card" style="--c:#1A497D"><div class="bar"></div><div class="kick" style="color:var(--navy)">${esc(S.group)}</div><h1 style="font-size:28px;color:var(--deep)">Check before you submit</h1>
+   <div class="rev">${Q.map((q,i)=>{const has=S.a[i]&&S.a[i].length;return `<button data-i="${i}" style="--c:${SEC[q.sec].c}"><span class="n">${q.bonus?'★':(i<5?i+1:i)}</span><span>${esc(q.q.length>70?q.q.slice(0,68)+'…':q.q)}</span><span class="s ${has?'ok':'no'}">${has?'Answered':'Open'}</span></button>`}).join('')}</div>
+   ${open?`<div class="warn">${open} question${open>1?'s are':' is'} still open. You can submit anyway.</div>`:''}
+   <div class="nav"><button class="btn ghost" id="back">Back</button><button class="btn" id="sub">Submit</button></div>
+   <div id="confirm"></div></div>`;
+  app.querySelectorAll('.rev button').forEach(b=>b.onclick=()=>{S.i=+b.dataset.i;S.review=false;save();show()});
+  document.getElementById('back').onclick=()=>{S.review=false;S.i=Q.length-1;save();show()};
+  document.getElementById('sub').onclick=()=>{
+    document.getElementById('confirm').innerHTML=`<div class="warn">Submit now? Answers cannot be changed afterwards.<div class="nav"><button class="btn ghost" id="no">Not yet</button><button class="btn" id="yes">Yes, submit</button></div></div>`;
+    document.getElementById('no').onclick=review;
+    document.getElementById('yes').onclick=()=>{S.done=true;S.review=false;S.end=Date.now();save();result()};
+  };
+}
+function result(){
+  dots.hidden=true;timer.hidden=true;
+  const t=totals();
+  app.innerHTML=`<section class="hero score"><div class="kick">Final score · Day 1</div><div class="grp">${esc(S.group)}</div>
+   <div class="big">${t.main}<small> / ${MAX}</small></div>${t.bonus?`<div class="bonus">+${t.bonus} bonus point</div>`:''}
+   <div class="grid">${Q.map((q,i)=>{const m=mark(q,S.a[i]);const cl=m===q.pts?'ok':(m>0?'part':'no');return `<div class="${cl}"><span>${q.bonus?'★':'Q'+(i<5?i+1:i)}</span><b>${m}/${q.pts}</b></div>`}).join('')}</div></section>
+   <p class="note">Show this screen to your facilitator. The answers and where to find them in the MSP come next, in plenary.</p>
+   <p class="src">Questions adapted from the IASC MSP Workshop Facilitator Manual (2024), Annex 5, with two questions added for Nepal. Points follow the facilitator answer key.</p>`;
+}
+S.group&&S.start?show():home();
+</script>
+</body>
+</html>
