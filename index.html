@@ -89,6 +89,7 @@ a{color:var(--blue)}
 <body>
 <div class="top"><div class="row"><div class="brand"><b>MSP Treasure Hunt</b> · Nepal edition</div><div class="timer" id="timer" hidden></div></div><div class="dots" id="dots" hidden></div></div>
 <main id="app"></main>
+<script src="config.js"></script>
 <script>
 const MIN = 35;
 const SEC = {
@@ -209,8 +210,21 @@ function result(){
   app.innerHTML=`<section class="hero score"><div class="kick">Final score · Day 1</div><div class="grp">${esc(S.group)}</div>
    <div class="big">${t.main}<small> / ${MAX}</small></div>${t.bonus?`<div class="bonus">+${t.bonus} bonus point</div>`:''}
    <div class="grid">${Q.map((q,i)=>{const m=mark(q,S.a[i]);const cl=m===q.pts?'ok':(m>0?'part':'no');return `<div class="${cl}"><span>${q.bonus?'★':'Q'+(i<5?i+1:i)}</span><b>${m}/${q.pts}</b></div>`}).join('')}</div></section>
+   <p class="note" id="sendst"></p>
    <p class="note">Show this screen to your facilitator. The answers and where to find them in the MSP come next, in plenary.</p>
    <p class="src">Questions adapted from the IASC MSP Workshop Facilitator Manual (2024), Annex 5, with two questions added for Nepal. Points follow the facilitator answer key.</p>`;
+  send();
+}
+function send(){
+  const ep=window.TH_ENDPOINT,st=document.getElementById('sendst');
+  if(!ep||!st)return;
+  if(S.sent){st.innerHTML='✓ Score sent to the facilitator’s dashboard.';return}
+  st.textContent='Sending your score to the facilitator…';
+  const t=totals();
+  const body={day:1,group:S.group,score:t.main,max:MAX,bonus:t.bonus,per:Q.map((q,i)=>mark(q,S.a[i])),minutes:Math.round(((S.end||Date.now())-S.start)/60000)};
+  fetch(ep,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)})
+   .then(()=>{S.sent=true;save();st.innerHTML='✓ Score sent to the facilitator’s dashboard.'})
+   .catch(()=>{st.innerHTML='Not sent: no connection. <button class="btn ghost" id="resend" style="min-height:40px;padding:6px 14px;font-size:15px">Send again</button>';const b=document.getElementById('resend');if(b)b.onclick=send;});
 }
 S.group&&S.start?show():home();
 </script>
